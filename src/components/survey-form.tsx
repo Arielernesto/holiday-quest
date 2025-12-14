@@ -20,9 +20,11 @@ import {
   ALL_RESPONSES_KEY,
   STORAGE_KEY,
   PROGRESS_KEY,
+  SurveySubmission,
 } from "@/lib/survey-questions"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { IdentifyUser } from "@/lib/utils"
+import { initSessionToken } from "@/app/actions"
 
 export function SurveyForm() {
   const survey = useSurveyState()
@@ -32,7 +34,24 @@ export function SurveyForm() {
   const [error, setError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [answers, setAnswers] = useState<Record<string, string | string[]>[]>([])
 
+  useEffect(() => {
+    async function FetchAnswers() {
+      const token = await initSessionToken()
+      console.log(token)
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/quest/all`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+      })
+      const responses: Record<string, string | string[]>[] = await res.json()
+      setAnswers(responses)
+    }
+  
+    FetchAnswers()
+  },[])
+  
   const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" })
 
   const next = () => {
@@ -92,7 +111,7 @@ export function SurveyForm() {
   }
 
   if (showSuccess) {
-    return <CompletionCelebration token={survey.userToken} answers={survey.savedAnswers} />
+    return <CompletionCelebration token={survey.userToken} answers={answers} />
   }
 
   return (
@@ -142,4 +161,6 @@ export function SurveyForm() {
       </div>
     </motion.div>
   )
+
+
 }

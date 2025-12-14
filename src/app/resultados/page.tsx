@@ -24,6 +24,8 @@ export default function ResultadosPage() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" }) 
+    scrollTop()
     setMounted(true)
   }, [])
 

@@ -16,7 +16,7 @@ import {
 
 interface SurveyComparisonProps {
   token: string
-  userAnswers: Record<string, string | string[]>
+  userAnswers: Record<string, string | string[]>[]
 }
 
 const fieldIcons: Record<string, React.ReactNode> = {
@@ -48,6 +48,7 @@ export function SurveyComparisonCard({ token, userAnswers }: SurveyComparisonPro
 
   useEffect(() => {
     calculateLocalComparison()
+    console.log(userAnswers)
   }, [userAnswers])
 
   const calculateLocalComparison = () => {
@@ -56,7 +57,7 @@ export function SurveyComparisonCard({ token, userAnswers }: SurveyComparisonPro
     const allResponses: SurveySubmission[] = storedResponses ? JSON.parse(storedResponses) : []
 
     // Filtrar para no comparar con uno mismo
-    const otherResponses = allResponses.filter((r) => JSON.stringify(r.answers) !== JSON.stringify(userAnswers))
+    const otherResponses = allResponses.filter((r) => JSON.stringify(r) !== JSON.stringify(userAnswers))
 
     if (otherResponses.length === 0) {
       // Si no hay otras respuestas, mostrar datos simulados
@@ -71,7 +72,7 @@ export function SurveyComparisonCard({ token, userAnswers }: SurveyComparisonPro
     }
 
     // Calcular similitud con cada respuesta
-    const similarities = otherResponses.map((response) => calculateSimilarity(userAnswers, response.answers))
+    const similarities = otherResponses.map((response) => calculateSimilarity(userAnswers, response))
 
     // Calcular estadísticas por campo
     const fields = ["language", "os", "editor", "role", "work-mode", "frameworks"]
@@ -81,7 +82,7 @@ export function SurveyComparisonCard({ token, userAnswers }: SurveyComparisonPro
 
       const userArr = Array.isArray(userValue) ? userValue : [userValue]
       const matches = otherResponses.filter((r) => {
-        const otherValue = r.answers[field]
+        const otherValue = r[field]
         if (!otherValue) return false
         const otherArr = Array.isArray(otherValue) ? otherValue : [otherValue]
         return userArr.some((v) => otherArr.includes(v))

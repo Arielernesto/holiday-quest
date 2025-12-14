@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { TreePine, Code2, Snowflake } from "lucide-react"
+import Image from "next/image"
 
 export function Header() {
   return (
@@ -17,11 +18,11 @@ export function Header() {
       >
         <TreePine className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-green-500" />
         <motion.div
-          className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center"
+          className=""
           animate={{ rotate: [0, 5, -5, 0] }}
           transition={{ repeat: Number.POSITIVE_INFINITY, duration: 4 }}
         >
-          <Code2 className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-primary-foreground" />
+          <Image src="/logo.svg" width={60} height={60} alt="" className="w-6 h-6 sm:w-7 sm:h-7 md:w-12 md:h-12 text-primary-foreground" />
         </motion.div>
         <TreePine className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-green-500" />
       </motion.div>

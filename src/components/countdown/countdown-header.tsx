@@ -3,6 +3,7 @@
 import { memo } from "react"
 import { motion } from "framer-motion"
 import { Bell, Sparkles, CalendarDays } from "lucide-react"
+import Image from "next/image"
 
 export const CountdownHeader = memo(function CountdownHeader() {
   return (
@@ -17,9 +18,7 @@ export const CountdownHeader = memo(function CountdownHeader() {
         animate={{ y: [0, -5, 0] }}
         transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
       >
-        <Bell className="w-6 h-6 md:w-8 md:h-8 text-yellow-500" />
-        <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-        <Bell className="w-6 h-6 md:w-8 md:h-8 text-yellow-500" />
+        <Image src="/logo.svg" width={50} height={50} alt=""></Image>
       </motion.div>
 
       <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 text-balance">

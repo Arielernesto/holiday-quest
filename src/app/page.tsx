@@ -56,7 +56,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="mt-12 sm:mt-16 text-center text-muted-foreground text-xs sm:text-sm space-y-2 sm:space-y-3">
-          <Link href="/analytics" className="inline-flex items-center gap-1.5 sm:gap-2 text-primary hover:underline">
+          <Link href="/resultados" className="inline-flex items-center gap-1.5 sm:gap-2 text-primary hover:underline">
             <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Ver resultados de la comunidad
           </Link>

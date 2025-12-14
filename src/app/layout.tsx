@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 export const metadata: Metadata = {
   title: "Encuesta Dev Navidad 2025 🎄",
   description: "Encuesta navideña para programadores",
+  icons: {
+    icon: "/logo.svg",
+  },
 }
 
 export default function RootLayout({
