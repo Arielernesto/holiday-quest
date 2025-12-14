@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { Clock, CalendarDays, Sun, Zap } from "lucide-react"
 import { CountdownUnit } from "./countdown-unit"
@@ -13,7 +14,7 @@ interface CountdownGridProps {
   }
 }
 
-export function CountdownGrid({ timeLeft }: CountdownGridProps) {
+export const CountdownGrid = memo(function CountdownGrid({ timeLeft }: CountdownGridProps) {
   return (
     <motion.div
       className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 w-full max-w-3xl"
@@ -27,5 +28,5 @@ export function CountdownGrid({ timeLeft }: CountdownGridProps) {
       <CountdownUnit value={timeLeft.seconds} label="Segundos" icon={Zap} />
     </motion.div>
   )
-}
+})
 

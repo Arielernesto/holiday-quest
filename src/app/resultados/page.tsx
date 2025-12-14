@@ -16,8 +16,8 @@ import {
   BackButton,
 } from "@/components/countdown"
 
-// Fecha de Noche Buena 2024
-const CHRISTMAS_EVE = new Date("2024-12-24T00:00:00")
+// Fecha de Noche Buena 2025
+const CHRISTMAS_EVE = new Date("2025-12-24T00:00:00")
 
 export default function ResultadosPage() {
   const timeLeft = useCountdown(CHRISTMAS_EVE)
@@ -48,8 +48,7 @@ export default function ResultadosPage() {
       <div className="fixed bottom-0 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
 
       <div className="relative z-10 container mx-auto px-4 py-8 md:py-16">
-        {/* Boton volver */}
-        <BackButton />
+
 
         <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 md:gap-12">
           {/* Encabezado */}
@@ -64,8 +63,6 @@ export default function ResultadosPage() {
           {/* Mensaje motivacional */}
           <MotivationalMessage />
 
-          {/* CTA */}
-          <CTAButtons />
 
           {/* Decoracion inferior */}
           <Footer />

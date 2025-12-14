@@ -1,15 +1,21 @@
 "use client"
 
+import { useMemo, memo } from "react"
 import { motion } from "framer-motion"
 
-export function BackgroundStars() {
-  const stars = Array.from({ length: 50 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: 1 + Math.random() * 2,
-    delay: Math.random() * 3,
-  }))
+export const BackgroundStars = memo(function BackgroundStars() {
+  const stars = useMemo(
+    () =>
+      Array.from({ length: 50 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: 1 + Math.random() * 2,
+        delay: Math.random() * 3,
+        duration: 2 + Math.random() * 2,
+      })),
+    [],
+  )
 
   return (
     <div className="fixed inset-0 pointer-events-none">
@@ -28,7 +34,7 @@ export function BackgroundStars() {
             scale: [1, 1.5, 1],
           }}
           transition={{
-            duration: 2 + Math.random() * 2,
+            duration: star.duration,
             repeat: Number.POSITIVE_INFINITY,
             delay: star.delay,
           }}
@@ -36,5 +42,5 @@ export function BackgroundStars() {
       ))}
     </div>
   )
-}
+})
 

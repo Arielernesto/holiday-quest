@@ -1,10 +1,11 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { ChristmasTree } from "./christmas-tree"
 import { AnimatedGift } from "./animated-gift"
 
-export function DecorativeElements() {
+export const DecorativeElements = memo(function DecorativeElements() {
   return (
     <motion.div
       className="flex items-end gap-6 md:gap-12"
@@ -21,5 +22,5 @@ export function DecorativeElements() {
       </div>
     </motion.div>
   )
-}
+})
 

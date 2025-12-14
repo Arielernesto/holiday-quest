@@ -1,11 +1,12 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-export function BackButton() {
+export const BackButton = memo(function BackButton() {
   return (
     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
       <Link href="/">
@@ -16,5 +17,5 @@ export function BackButton() {
       </Link>
     </motion.div>
   )
-}
+})
 

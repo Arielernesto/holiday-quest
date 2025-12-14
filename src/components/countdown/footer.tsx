@@ -1,9 +1,10 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { Snowflake } from "lucide-react"
 
-export function Footer() {
+export const Footer = memo(function Footer() {
   return (
     <motion.div
       className="flex items-center gap-4 text-muted-foreground"
@@ -26,5 +27,5 @@ export function Footer() {
       </motion.div>
     </motion.div>
   )
-}
+})
 

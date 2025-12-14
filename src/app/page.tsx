@@ -7,18 +7,25 @@ import Link from "next/link"
 import { BarChart3 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { IdentifyUser } from "@/lib/utils"
+
+
+
 
 export default function Home() {
   const router = useRouter()
   const [isChecking, setIsChecking] = useState(true)
 
   useEffect(() => {
-    const hasSubmitted = localStorage.getItem("dev-survey-2024-completed")
-    if (hasSubmitted) {
-      router.replace("/resultados")
-    } else {
-      setIsChecking(false)
-    }
+    IdentifyUser().then((id) => {
+      const hasSubmitted = localStorage.getItem("dev-survey-2025-completed")
+      if (hasSubmitted) {
+        router.replace("/resultados")
+      } 
+      else {
+        setIsChecking(false)
+    } 
+    })
   }, [router])
 
   if (isChecking) {
@@ -54,7 +61,7 @@ export default function Home() {
             Ver resultados de la comunidad
           </Link>
           <p>Hecho con codigo y cafe por desarrolladores para desarrolladores</p>
-          <p className="flex items-center justify-center gap-2">Felices Fiestas 2024</p>
+          <p className="flex items-center justify-center gap-2">Felices Fiestas 2025</p>
         </footer>
       </div>
     </main>

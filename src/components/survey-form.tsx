@@ -16,13 +16,13 @@ import { useSurveyNavigation } from "@/hooks/useSurveyNavigation"
 import {
   SURVEY_SECTIONS,
   submitSurveyToBackend,
-  generateSurveyToken,
   USER_TOKEN_KEY,
   ALL_RESPONSES_KEY,
   STORAGE_KEY,
   PROGRESS_KEY,
 } from "@/lib/survey-questions"
 import { useState } from "react"
+import { IdentifyUser } from "@/lib/utils"
 
 export function SurveyForm() {
   const survey = useSurveyState()
@@ -57,12 +57,19 @@ export function SurveyForm() {
     const payload = {
       answers: survey.answers,
       submittedAt: new Date().toISOString(),
-      sessionId: survey.sessionId,
+      sessionId: await IdentifyUser(),
       userAgent: navigator.userAgent,
     }
 
+    console.log(payload)
     const res = await submitSurveyToBackend(payload)
-    const token = res.token || generateSurveyToken()
+    const token = res.token
+    if (!res.success || !token) {
+      setError("Hubo un error al enviar tu encuesta. Por favor, intenta de nuevo.")
+      setIsSubmitting(false)
+      scrollTop()
+      return
+    }
 
     survey.setUserToken(token)
     survey.setSavedAnswers(survey.answers)
@@ -75,9 +82,9 @@ export function SurveyForm() {
     const all = JSON.parse(localStorage.getItem(ALL_RESPONSES_KEY) || "[]")
     localStorage.setItem(ALL_RESPONSES_KEY, JSON.stringify([...all, payload]))
 
-    // setShowSuccess(true)
-    // setIsSubmitting(false)
-    // scrollTop()
+    setShowSuccess(true)
+    setIsSubmitting(false)
+    scrollTop()
   }
 
   if (survey.hasParticipated && !showSuccess) {

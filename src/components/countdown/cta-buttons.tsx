@@ -1,11 +1,12 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { TreePine, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
-export function CTAButtons() {
+export const CTAButtons = memo(function CTAButtons() {
   return (
     <motion.div
       className="flex flex-col sm:flex-row gap-4"
@@ -27,5 +28,5 @@ export function CTAButtons() {
       </Link>
     </motion.div>
   )
-}
+})
 

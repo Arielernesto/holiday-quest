@@ -1,17 +1,22 @@
 "use client"
 
+import { useMemo, memo } from "react"
 import { motion } from "framer-motion"
 import { Snowflake, Star, Sparkles, Gift, Bell, Candy } from "lucide-react"
 
-export function FloatingParticles() {
-  const particles = Array.from({ length: 40 }, (_, i) => ({
-    id: i,
-    icon: [Snowflake, Star, Sparkles, Gift, Bell, Candy][i % 6],
-    x: Math.random() * 100,
-    delay: Math.random() * 5,
-    duration: 8 + Math.random() * 10,
-    size: 12 + Math.random() * 16,
-  }))
+export const FloatingParticles = memo(function FloatingParticles() {
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 40 }, (_, i) => ({
+        id: i,
+        icon: [Snowflake, Star, Sparkles, Gift, Bell, Candy][i % 6],
+        x: Math.random() * 100,
+        delay: Math.random() * 5,
+        duration: 8 + Math.random() * 10,
+        size: 12 + Math.random() * 16,
+      })),
+    [],
+  )
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -41,5 +46,5 @@ export function FloatingParticles() {
       })}
     </div>
   )
-}
+})
 

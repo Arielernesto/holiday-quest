@@ -1,8 +1,9 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 
-export function ChristmasLights() {
+export const ChristmasLights = memo(function ChristmasLights() {
   const colors = ["#ef4444", "#22c55e", "#3b82f6", "#eab308", "#ec4899", "#8b5cf6"]
   const lights = Array.from({ length: 20 }, (_, i) => ({
     id: i,
@@ -33,5 +34,5 @@ export function ChristmasLights() {
       ))}
     </div>
   )
-}
+})
 

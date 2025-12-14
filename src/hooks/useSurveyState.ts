@@ -14,7 +14,6 @@ export function useSurveyState() {
   const [hasParticipated, setHasParticipated] = useState(false)
   const [userToken, setUserToken] = useState("")
   const [sessionId] = useState(() => crypto.randomUUID())
-
   // Load persisted state
   useEffect(() => {
     const storedSurvey = localStorage.getItem(STORAGE_KEY)

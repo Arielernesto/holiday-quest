@@ -1,9 +1,10 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { PartyPopper, Gift, Code2, Zap, Heart } from "lucide-react"
 
-export function MotivationalMessage() {
+export const MotivationalMessage = memo(function MotivationalMessage() {
   return (
     <motion.div
       className="text-center max-w-2xl mx-auto"
@@ -29,7 +30,7 @@ export function MotivationalMessage() {
 
         <p className="text-muted-foreground mb-4">
           En Noche Buena revelaremos los resultados de la encuesta de la comunidad dev. Descubre que lenguajes,
-          herramientas y tendencias dominan entre los programadores este 2024.
+          herramientas y tendencias dominan entre los programadores este 2025.
         </p>
 
         <div className="flex flex-wrap justify-center gap-3">
@@ -54,5 +55,5 @@ export function MotivationalMessage() {
       </motion.div>
     </motion.div>
   )
-}
+})
 

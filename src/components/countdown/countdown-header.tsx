@@ -1,9 +1,10 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { Bell, Sparkles, CalendarDays } from "lucide-react"
 
-export function CountdownHeader() {
+export const CountdownHeader = memo(function CountdownHeader() {
   return (
     <motion.div
       className="text-center"
@@ -48,9 +49,9 @@ export function CountdownHeader() {
         transition={{ delay: 0.5 }}
       >
         <CalendarDays className="w-5 h-5" />
-        24 de Diciembre, 2024
+        24 de Diciembre, 2025
       </motion.p>
     </motion.div>
   )
-}
+})
 

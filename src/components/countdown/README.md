@@ -38,3 +38,31 @@ import {
 ```
 
 ## Ventajas de la Modularización
+
+1. **Mantenibilidad**: Cada componente tiene una responsabilidad única y es fácil de mantener.
+2. **Reusabilidad**: Los componentes pueden reutilizarse en otras partes de la aplicación.
+3. **Testabilidad**: Es más fácil escribir tests unitarios para componentes pequeños.
+4. **Legibilidad**: El código principal es más limpio y fácil de entender.
+5. **Colaboración**: Múltiples desarrolladores pueden trabajar en diferentes componentes simultáneamente.
+
+## Optimizaciones de Rendimiento
+
+Todos los componentes están optimizados para evitar re-renderizados innecesarios:
+
+### 1. **React.memo**
+Todos los componentes están envueltos con `React.memo()` para prevenir re-renderizados cuando sus props no cambian.
+
+### 2. **useMemo para valores aleatorios**
+Los componentes con valores aleatorios (estrellas, partículas, luces) usan `useMemo` con array de dependencias vacío `[]` para generar los valores solo una vez en el montaje inicial.
+
+Esto asegura que:
+- Las estrellas mantengan su posición fija
+- Las partículas no cambien de lugar
+- Las luces del árbol mantengan su duración de animación
+
+### 3. **Separación de componentes dinámicos y estáticos**
+- **Componentes estáticos**: Decoraciones, fondos, headers (no re-renderizan)
+- **Componente dinámico**: Solo `CountdownGrid` se actualiza cada segundo con el nuevo tiempo
+
+### Resultado
+Cuando el contador se actualiza cada segundo, **solo el componente `CountdownGrid` se re-renderiza**, manteniendo todas las decoraciones estáticas en su lugar

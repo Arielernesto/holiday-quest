@@ -7,7 +7,7 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfa
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
 export const metadata: Metadata = {
-  title: "Encuesta Dev Navidad 2024 🎄",
+  title: "Encuesta Dev Navidad 2025 🎄",
   description: "Encuesta navideña para programadores",
 }
 

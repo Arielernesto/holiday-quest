@@ -4,6 +4,9 @@
 // Ahora organizado por SECCIONES para mejor navegación
 // Cada sección agrupa preguntas relacionadas
 
+import { initSessionToken } from "@/app/actions"
+import { QuestResponse } from "@/types"
+
 export type QuestionType = "single" | "multiple" | "text"
 
 export interface SurveyQuestion {
@@ -373,7 +376,7 @@ export const SURVEY_SECTIONS: SurveySection[] = [
       },
       {
         id: "prediction",
-        question: "¿Qué crees que será tendencia en 2025?",
+        question: "¿Qué crees que será tendencia en 2026?",
         type: "text",
         required: false,
       },
@@ -382,10 +385,10 @@ export const SURVEY_SECTIONS: SurveySection[] = [
 ]
 
 // Claves para localStorage
-export const STORAGE_KEY = "dev-survey-2024-completed"
-export const PROGRESS_KEY = "dev-survey-2024-progress"
-export const ALL_RESPONSES_KEY = "dev-survey-2024-all-responses"
-export const USER_TOKEN_KEY = "dev-survey-2024-token"
+export const STORAGE_KEY = "dev-survey-2025-completed"
+export const PROGRESS_KEY = "dev-survey-2025-progress"
+export const ALL_RESPONSES_KEY = "dev-survey-2025-all-responses"
+export const USER_TOKEN_KEY = "dev-survey-2025-token"
 
 export interface SurveySubmission {
   answers: Record<string, string | string[]>
@@ -412,11 +415,13 @@ export interface SurveyComparison {
   similarDevs: number
 }
 
-export function generateSurveyToken(): string {
-  const timestamp = Date.now().toString(36)
-  const random = Math.random().toString(36).substring(2, 10)
-  return `DEV-${timestamp}-${random}`.toUpperCase()
+export interface FetchSurveyResponse {
+  success: boolean;
+  data?: QuestResponse;
+  message?: string;
 }
+
+
 
 export function calculateSimilarity(
   userAnswers: Record<string, string | string[]>,
@@ -463,14 +468,15 @@ export function calculateSimilarity(
 
 export async function submitSurveyToBackend(data: SurveySubmission): Promise<SurveyBackendResponse> {
   console.log(data)
-  return { success: false }
-  const BACKEND_URL = "/api/survey"
+
 
   try {
-    const response = await fetch(BACKEND_URL, {
+    const token = await initSessionToken()
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/quest` as string, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(data),
     })
@@ -480,35 +486,29 @@ export async function submitSurveyToBackend(data: SurveySubmission): Promise<Sur
     }
 
     const result = await response.json()
-    return result
+    return {  success: true, token: result.token }
   } catch (error) {
     console.error("Error submitting survey:", error)
     return { success: false }
   }
 }
 
-export async function getSurveyByToken(token: string): Promise<{ success: boolean; data?: SurveySubmission }> {
+export async function getSurveyByToken(token: string): Promise<FetchSurveyResponse> {
   try {
-    const response = await fetch(`/api/survey?token=${encodeURIComponent(token)}`)
+    const token = await initSessionToken()
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/quest/${encodeURIComponent(token)}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    })
     if (!response.ok) {
-      throw new Error("Error al obtener encuesta")
+      const errorText = await response.text()
+      return { success: false, message: `Error al obtener encuesta: ${response.status} ${response.statusText} - ${errorText}` }
     }
-    return await response.json()
-  } catch (error) {
+    const result: QuestResponse = await response.json()
+    return { success: true, data: result }
+  } catch (error: any) {
     console.error("Error fetching survey:", error)
-    return { success: false }
-  }
-}
-
-export async function getComparison(token: string): Promise<{ success: boolean; comparison?: SurveyComparison }> {
-  try {
-    const response = await fetch(`/api/survey/compare?token=${encodeURIComponent(token)}`)
-    if (!response.ok) {
-      throw new Error("Error al obtener comparación")
-    }
-    return await response.json()
-  } catch (error) {
-    console.error("Error fetching comparison:", error)
-    return { success: false }
+    return { success: false, message: error.message || "Error desconocido al cargar la encuesta." }
   }
 }

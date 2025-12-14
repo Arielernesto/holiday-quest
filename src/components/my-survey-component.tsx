@@ -8,9 +8,11 @@ import { Users, Percent, Code, Monitor, Briefcase, Layers, TrendingUp, Target, A
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ALL_RESPONSES_KEY, USER_TOKEN_KEY, calculateSimilarity, type SurveySubmission } from "@/lib/survey-questions"
+import { ALL_RESPONSES_KEY, USER_TOKEN_KEY, calculateSimilarity, getSurveyByToken, type SurveySubmission } from "@/lib/survey-questions"
 import { StackedBarChart } from "./charts/stacked-bar-chart"
 import { ProgressRing } from "./charts/progress-ring"
+import { QuestResponse } from "@/types"
+import { initSessionToken } from "@/app/actions"
 
 interface FieldMatch {
   field: string
@@ -43,6 +45,27 @@ const fieldLabels: Record<string, string> = {
   tools: "Herramientas",
   database: "Bases de datos",
   "ai-tools": "Herramientas IA",
+  "ai-impact": "Impacto de la IA", // Add ai-impact to fieldLabels
+}
+
+// Helper function to map QuestResponse to the answers format expected by the component
+function mapQuestResponseToAnswers(quest: QuestResponse): Record<string, string | string[]> {
+  const answers: Record<string, string | string[]> = {}
+  for (const key in quest) {
+    // Exclude metadata fields and type-incompatible fields
+    if (
+      key !== "_id" &&
+      key !== "sessionId" &&
+      key !== "ip" &&
+      key !== "userToken" &&
+      key !== "submittedAt" &&
+      key !== "userAgent" &&
+      key !== "__v"
+    ) {
+      answers[key] = quest[key as keyof QuestResponse] as string | string[]
+    }
+  }
+  return answers
 }
 
 export function MySurveyComparison() {
@@ -69,34 +92,37 @@ export function MySurveyComparison() {
     }
   }, [])
 
-  const loadUserSurvey = (searchToken: string) => {
+  const loadUserSurvey = async (searchToken: string) => {
     setLoading(true)
     setError("")
-
-    const storedResponses = localStorage.getItem(ALL_RESPONSES_KEY)
-    const allResponses: SurveySubmission[] = storedResponses ? JSON.parse(storedResponses) : []
-
-    // Find user's survey (simplified - in real app would use API)
-    const userSurvey = allResponses.find((r) => {
-      const savedToken = localStorage.getItem(USER_TOKEN_KEY)
-      return savedToken === searchToken
+    const token = await initSessionToken()
+    const responses = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/quest/all`, {
+      headers: {
+          'Authorization': `Bearer ${token}`
+      },
     })
+    const allResponses: SurveySubmission[] = await responses.json()
+    try {
+      const userSurvey = await getSurveyByToken(searchToken)
 
-    if (!userSurvey && allResponses.length > 0) {
-      // Use first response as demo
-      calculateComparison(allResponses[0].answers, allResponses)
-    } else if (userSurvey) {
-      setUserAnswers(userSurvey.answers)
-      calculateComparison(userSurvey.answers, allResponses)
-    } else {
-      setError("No se encontraron datos de encuesta")
+      if (userSurvey.data) {
+        const mappedAnswers = mapQuestResponseToAnswers(userSurvey.data)
+        console.log("Mapped user answers:", mappedAnswers)
+        setUserAnswers(mappedAnswers)
+        calculateComparison(mappedAnswers, allResponses)
+      } else {
+        setError(userSurvey.message || "No se encontraron datos de encuesta para el token proporcionado.")
+        setLoading(false)
+      }
+    } catch (err) {
+      setError("Error al cargar la encuesta. Intenta de nuevo.")
       setLoading(false)
     }
   }
 
   const calculateComparison = (answers: Record<string, string | string[]>, allResponses: SurveySubmission[]) => {
     setUserAnswers(answers)
-    const otherResponses = allResponses.filter((r) => JSON.stringify(r.answers) !== JSON.stringify(answers))
+    const otherResponses = allResponses.filter((r) => JSON.stringify(r) !== JSON.stringify(answers))
 
     if (otherResponses.length === 0) {
       setComparison({
@@ -110,7 +136,7 @@ export function MySurveyComparison() {
       return
     }
 
-    const similarities = otherResponses.map((response) => calculateSimilarity(answers, response.answers))
+    const similarities = otherResponses.map((response) => calculateSimilarity(answers, response))
 
     const fields = ["language", "os", "editor", "role", "work-mode", "experience", "frameworks", "ai-tools"]
     const fieldMatches: FieldMatch[] = fields.map((field) => {
@@ -132,7 +158,7 @@ export function MySurveyComparison() {
       // Count community preferences
       const counts: Record<string, number> = {}
       otherResponses.forEach((r) => {
-        const otherValue = r.answers[field]
+        const otherValue = r[field]
         if (!otherValue) return
         const otherArr = Array.isArray(otherValue) ? otherValue : [otherValue]
         otherArr.forEach((v) => {
@@ -145,7 +171,7 @@ export function MySurveyComparison() {
       const topPercentage = (top[1] / otherResponses.length) * 100
 
       const matches = otherResponses.filter((r) => {
-        const otherValue = r.answers[field]
+        const otherValue = r[field]
         if (!otherValue) return false
         const otherArr = Array.isArray(otherValue) ? otherValue : [otherValue]
         return userArr.some((v) => otherArr.includes(v))
@@ -242,7 +268,17 @@ export function MySurveyComparison() {
     )
   }
 
-  if (!comparison) return null
+  if (!comparison) {
+    return (
+      <Card className="bg-card/60 backdrop-blur-md border-primary/30">
+        <CardContent className="p-8 flex flex-col items-center justify-center text-center">
+          <p className="text-lg font-semibold text-destructive mb-4">Error</p>
+          <p className="text-sm text-muted-foreground">{error || "No se pudo cargar la comparación de tu encuesta."}</p>
+          <Button onClick={() => setToken("")} className="mt-4">Intentar con otro token</Button>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -377,3 +413,7 @@ export function MySurveyComparison() {
     </div>
   )
 }
+function getSessionToken() {
+  throw new Error("Function not implemented.")
+}
+

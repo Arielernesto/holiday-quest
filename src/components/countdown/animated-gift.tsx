@@ -1,9 +1,10 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 import { Star, Sparkles } from "lucide-react"
 
-export function AnimatedGift() {
+export const AnimatedGift = memo(function AnimatedGift() {
   return (
     <motion.div
       className="relative"
@@ -44,5 +45,5 @@ export function AnimatedGift() {
       />
     </motion.div>
   )
-}
+})
 

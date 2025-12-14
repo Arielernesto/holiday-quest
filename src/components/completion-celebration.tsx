@@ -190,7 +190,7 @@ export function CompletionCelebration({ token, answers }: CompletionCelebrationP
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}>
-            <Link href="/analytics">
+            <Link href="/resultados">
               <Button
                 size="default"
                 className="bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity text-sm sm:text-base"

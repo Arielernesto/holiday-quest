@@ -1,8 +1,30 @@
 "use client"
 
+import { useMemo, memo } from "react"
 import { motion } from "framer-motion"
 
-export function ChristmasTree() {
+const TREE_LIGHTS = [
+  { cx: 40, cy: 60, color: "#ef4444" },
+  { cx: 80, cy: 65, color: "#3b82f6" },
+  { cx: 35, cy: 90, color: "#eab308" },
+  { cx: 85, cy: 85, color: "#ec4899" },
+  { cx: 60, cy: 95, color: "#22c55e" },
+  { cx: 30, cy: 120, color: "#8b5cf6" },
+  { cx: 70, cy: 115, color: "#ef4444" },
+  { cx: 90, cy: 125, color: "#3b82f6" },
+  { cx: 50, cy: 125, color: "#eab308" },
+]
+
+export const ChristmasTree = memo(function ChristmasTree() {
+  const lights = useMemo(
+    () =>
+      TREE_LIGHTS.map((light, i) => ({
+        ...light,
+        duration: 1 + Math.random(),
+      })),
+    [],
+  )
+
   return (
     <motion.div
       className="relative"
@@ -35,17 +57,7 @@ export function ChristmasTree() {
         <rect x="50" y="135" width="20" height="25" fill="#78350f" rx="2" />
 
         {/* Luces del arbol */}
-        {[
-          { cx: 40, cy: 60, color: "#ef4444" },
-          { cx: 80, cy: 65, color: "#3b82f6" },
-          { cx: 35, cy: 90, color: "#eab308" },
-          { cx: 85, cy: 85, color: "#ec4899" },
-          { cx: 60, cy: 95, color: "#22c55e" },
-          { cx: 30, cy: 120, color: "#8b5cf6" },
-          { cx: 70, cy: 115, color: "#ef4444" },
-          { cx: 90, cy: 125, color: "#3b82f6" },
-          { cx: 50, cy: 125, color: "#eab308" },
-        ].map((light, i) => (
+        {lights.map((light, i) => (
           <motion.circle
             key={i}
             cx={light.cx}
@@ -57,7 +69,7 @@ export function ChristmasTree() {
               r: [3, 5, 3],
             }}
             transition={{
-              duration: 1 + Math.random(),
+              duration: light.duration,
               repeat: Number.POSITIVE_INFINITY,
               delay: i * 0.2,
             }}
@@ -69,5 +81,5 @@ export function ChristmasTree() {
       </svg>
     </motion.div>
   )
-}
+})
 

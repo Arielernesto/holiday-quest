@@ -1,8 +1,9 @@
 "use client"
 
+import { memo } from "react"
 import { motion } from "framer-motion"
 
-export function AnimatedMoon() {
+export const AnimatedMoon = memo(function AnimatedMoon() {
   return (
     <motion.div
       className="absolute top-20 right-10 md:top-32 md:right-20"
@@ -31,5 +32,5 @@ export function AnimatedMoon() {
       </div>
     </motion.div>
   )
-}
+})
 
