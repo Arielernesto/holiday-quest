@@ -401,6 +401,7 @@ export interface SurveyBackendResponse {
   success: boolean
   token?: string
   message?: string
+  backendErrors?: Record<string, string[]>
 }
 
 export interface SurveyComparison {
@@ -421,7 +422,59 @@ export interface FetchSurveyResponse {
   message?: string;
 }
 
+// Función para obtener opciones ordenadas por popularidad (trending)
+export function getTrendingOptions(
+  fieldId: string,
+  allResponses: SurveySubmission[] | Record<string, string | string[]>[],
+  defaultOptions: string[]
+): { trending: string[]; other: string[] } {
+  if (!allResponses || allResponses.length === 0) {
+    return { trending: [], other: defaultOptions };
+  }
 
+  // Contar frecuencia de cada opción
+  const frequency: Record<string, number> = {};
+  
+  allResponses.forEach((response: any) => {
+    // Manejar tanto SurveySubmission (con .answers) como respuestas directas del backend
+    const value = response.answers ? response.answers[fieldId] : response[fieldId];
+    if (!value) return;
+
+    const options = Array.isArray(value) ? value : [value];
+    options.forEach((opt) => {
+      frequency[opt] = (frequency[opt] || 0) + 1;
+    });
+  });
+
+  // Separar opciones default de custom
+  const defaultWithFreq = defaultOptions.map((opt) => ({
+    option: opt,
+    count: frequency[opt] || 0,
+  }));
+
+  const customOptions = Object.keys(frequency).filter((opt) => !defaultOptions.includes(opt));
+  const customWithFreq = customOptions.map((opt) => ({
+    option: opt,
+    count: frequency[opt],
+  }));
+
+  // Ordenar por frecuencia descendente
+  const allWithFreq = [...defaultWithFreq, ...customWithFreq].sort((a, b) => b.count - a.count);
+
+  // Solo mostrar como trending si tiene al menos 2 respuestas
+  // Máximo 3 opciones trending
+  const minFrequency = 2;
+  const trending = allWithFreq
+    .filter((x) => x.count >= minFrequency)
+    .slice(0, 3)
+    .map((x) => x.option);
+  
+  const other = allWithFreq
+    .slice(trending.length)
+    .map((x) => x.option);
+
+  return { trending, other };
+}
 
 export function calculateSimilarity(
   userAnswers: Record<string, string | string[]>,
@@ -467,8 +520,29 @@ export function calculateSimilarity(
 }
 
 export async function submitSurveyToBackend(data: SurveySubmission): Promise<SurveyBackendResponse> {
-  console.log(data)
+  // Limpiar campos vacíos (strings vacías o arrays vacíos)
+  const cleanedAnswers = Object.entries(data.answers).reduce((acc, [key, value]) => {
+    // Si es un string, solo incluir si no está vacío
+    if (typeof value === "string" && value.trim().length > 0) {
+      acc[key] = value.trim()
+    }
+    // Si es un array, solo incluir si tiene elementos
+    else if (Array.isArray(value) && value.length > 0) {
+      acc[key] = value.filter(v => typeof v === "string" && v.trim().length > 0).map(v => v.trim())
+    }
+    // Para otros tipos, incluir si no son undefined/null
+    else if (value !== undefined && value !== null && value !== "" && !(Array.isArray(value) && value.length === 0)) {
+      acc[key] = value
+    }
+    return acc
+  }, {} as Record<string, string | string[]>)
 
+  const cleanedData = {
+    ...data,
+    answers: cleanedAnswers
+  }
+
+  console.log(cleanedData)
 
   try {
     const token = await initSessionToken()
@@ -478,14 +552,23 @@ export async function submitSurveyToBackend(data: SurveySubmission): Promise<Sur
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(cleanedData),
     })
 
+    const result = await response.json()
+
     if (!response.ok) {
-      throw new Error("Error al enviar encuesta")
+      // Retornar errores del backend si están disponibles
+      if (result.details) {
+        return { 
+          success: false, 
+          message: result.message,
+          backendErrors: result.details
+        }
+      }
+      throw new Error(result.message || "Error al enviar encuesta")
     }
 
-    const result = await response.json()
     return {  success: true, token: result.token }
   } catch (error) {
     console.error("Error submitting survey:", error)
@@ -495,10 +578,10 @@ export async function submitSurveyToBackend(data: SurveySubmission): Promise<Sur
 
 export async function getSurveyByToken(token: string): Promise<FetchSurveyResponse> {
   try {
-    const token = await initSessionToken()
+    const tokenInit = await initSessionToken()
     const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/quest/${encodeURIComponent(token)}`, {
       headers: {
-        "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${tokenInit}`
       }
     })
     if (!response.ok) {

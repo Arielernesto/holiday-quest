@@ -11,12 +11,14 @@ interface Props {
   currentSection: number
   answers: Record<string, string | string[]>
   onAnswerChange: (id: string, value: string | string[]) => void
+  allResponses: Record<string, string | string[]>[]
 }
 
 export function QuestionForm({
   currentSection,
   answers,
   onAnswerChange,
+  allResponses,
 }: Props) {
   const section = SURVEY_SECTIONS[currentSection]
 
@@ -46,6 +48,7 @@ export function QuestionForm({
               index={index}
               value={answers[q.id] || (q.type === "multiple" ? [] : "")}
               onChange={(value) => onAnswerChange(q.id, value)}
+              allResponses={allResponses}
             />
           ))}
         </div>

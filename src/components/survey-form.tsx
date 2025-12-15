@@ -84,7 +84,15 @@ export function SurveyForm() {
     const res = await submitSurveyToBackend(payload)
     const token = res.token
     if (!res.success || !token) {
-      setError("Hubo un error al enviar tu encuesta. Por favor, intenta de nuevo.")
+      // Mostrar errores específicos del backend si están disponibles
+      if (res.backendErrors) {
+        const errorMessages = Object.entries(res.backendErrors)
+          .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+          .join('\n')
+        setError(`Validación fallida:\n${errorMessages}`)
+      } else {
+        setError("Hubo un error al enviar tu encuesta. Por favor, intenta de nuevo.")
+      }
       setIsSubmitting(false)
       scrollTop()
       return
@@ -129,6 +137,7 @@ export function SurveyForm() {
           survey.setAnswers((p) => ({ ...p, [id]: value }))
           setError("")
         }}
+        allResponses={answers}
       />
 
       <AnimatePresence>

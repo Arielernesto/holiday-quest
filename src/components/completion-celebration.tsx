@@ -10,7 +10,7 @@ import { SurveyComparisonCard } from "./survey-comparison"
 
 interface CompletionCelebrationProps {
   token: string
-  answers: Record<string, string | string[]>[]
+  answers: Record<string, string | string[]> | Record<string, string | string[]>[]
 }
 
 export function CompletionCelebration({ token, answers }: CompletionCelebrationProps) {

@@ -1,28 +1,42 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import type { SurveyQuestion } from "@/lib/survey-questions"
+import { getTrendingOptions, SurveySubmission } from "@/lib/survey-questions"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { PenLine } from "lucide-react"
+import { PenLine, Flame } from "lucide-react"
 
 interface SurveyQuestionCardProps {
   question: SurveyQuestion
   index: number
   value: string | string[]
   onChange: (value: string | string[]) => void
+  allResponses: Record<string, string | string[]>[]
 }
 
-export function SurveyQuestionCard({ question, index, value, onChange }: SurveyQuestionCardProps) {
+export function SurveyQuestionCard({ question, index, value, onChange, allResponses }: SurveyQuestionCardProps) {
   const MAX_INPUT_LENGTH = 40
   const [customValue, setCustomValue] = useState("")
   const [customError, setCustomError] = useState("")
   const [showCustomInput, setShowCustomInput] = useState(false)
+
+  // Obtener opciones trending del backend
+  const { trendingOptions, otherOptions } = useMemo(() => {
+    if (!question.options) return { trendingOptions: [], otherOptions: [] }
+
+    if (!allResponses || allResponses.length === 0) {
+      return { trendingOptions: [], otherOptions: question.options }
+    }
+
+    const { trending, other } = getTrendingOptions(question.id, allResponses, question.options)
+    return { trendingOptions: trending, otherOptions: other }
+  }, [question, allResponses])
 
   const handleSingleChange = (val: string) => {
     if (val === "__custom__") {
@@ -78,14 +92,40 @@ export function SurveyQuestionCard({ question, index, value, onChange }: SurveyQ
             <RadioGroup
               value={showCustomInput ? "__custom__" : (value as string)}
               onValueChange={handleSingleChange}
-              className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-2 space-y-0"
             >
-              {question.options.map((option, optIndex) => (
+              {/* Mostrar opciones trending primero */}
+              {trendingOptions.length > 0 && (
+                <>
+                  {trendingOptions.map((option, optIndex) => (
+                    <motion.div
+                      key={option}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: optIndex * 0.03 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Label
+                        htmlFor={`${question.id}-${option}`}
+                        className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg bg-gradient-to-r from-primary/15 to-accent/15 hover:from-primary/25 hover:to-accent/25 cursor-pointer transition-all border border-primary/30 hover:border-primary/50"
+                      >
+                        <RadioGroupItem value={option} id={`${question.id}-${option}`} />
+                        <span className="text-xs sm:text-sm flex-1">{option}</span>
+                        <Flame className="w-3 h-3 text-orange-500 flex-shrink-0" />
+                      </Label>
+                    </motion.div>
+                  ))}
+                </>
+              )}
+
+              {/* Mostrar otras opciones */}
+              {otherOptions.map((option, optIndex) => (
                 <motion.div
                   key={option}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: optIndex * 0.03 }}
+                  transition={{ delay: (trendingOptions.length + optIndex) * 0.03 }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -98,6 +138,7 @@ export function SurveyQuestionCard({ question, index, value, onChange }: SurveyQ
                   </Label>
                 </motion.div>
               ))}
+
               {question.allowCustom && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
@@ -149,12 +190,42 @@ export function SurveyQuestionCard({ question, index, value, onChange }: SurveyQ
 
           {question.type === "multiple" && question.options && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {question.options.map((option, optIndex) => (
+              {/* Mostrar opciones trending primero */}
+              {trendingOptions.length > 0 && (
+                <>
+                  {trendingOptions.map((option, optIndex) => (
+                    <motion.div
+                      key={option}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: optIndex * 0.03 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Label
+                        htmlFor={`${question.id}-${option}`}
+                        className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg bg-gradient-to-r from-primary/15 to-accent/15 hover:from-primary/25 hover:to-accent/25 cursor-pointer transition-all border border-primary/30 hover:border-primary/50"
+                      >
+                        <Checkbox
+                          id={`${question.id}-${option}`}
+                          checked={Array.isArray(value) && value.includes(option)}
+                          onCheckedChange={(checked) => handleMultipleChange(option, checked as boolean)}
+                        />
+                        <span className="text-xs sm:text-sm flex-1">{option}</span>
+                        <Flame className="w-3 h-3 text-orange-500 flex-shrink-0" />
+                      </Label>
+                    </motion.div>
+                  ))}
+                </>
+              )}
+
+              {/* Mostrar otras opciones */}
+              {otherOptions.map((option, optIndex) => (
                 <motion.div
                   key={option}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: optIndex * 0.03 }}
+                  transition={{ delay: (trendingOptions.length + optIndex) * 0.03 }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >

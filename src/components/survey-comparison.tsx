@@ -4,19 +4,19 @@ import type React from "react"
 
 import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
-import { Users, Percent, Copy, Check, Code, Monitor, Briefcase, Layers, Sparkles, TrendingUp } from "lucide-react"
+import { Users, Percent, Copy, Check, Code, Monitor, Briefcase, Layers, Sparkles, TrendingUp, Zap } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
-  ALL_RESPONSES_KEY,
   calculateSimilarity,
   type SurveySubmission,
   type SurveyComparison,
 } from "@/lib/survey-questions"
+import { initSessionToken } from "@/app/actions"
 
 interface SurveyComparisonProps {
   token: string
-  userAnswers: Record<string, string | string[]>[]
+  userAnswers: Record<string, string | string[]> | Record<string, string | string[]>[]
 }
 
 const fieldIcons: Record<string, React.ReactNode> = {
@@ -45,22 +45,108 @@ export function SurveyComparisonCard({ token, userAnswers }: SurveyComparisonPro
   const [copied, setCopied] = useState(false)
   const [comparison, setComparison] = useState<SurveyComparison | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isFirstResponse, setIsFirstResponse] = useState(false)
+
+  // Normalizar userAnswers para que siempre sea un objeto
+  const normalizedUserAnswers = Array.isArray(userAnswers) 
+    ? (userAnswers.length > 0 ? userAnswers[0] : {})
+    : userAnswers
 
   useEffect(() => {
-    calculateLocalComparison()
-    console.log(userAnswers)
-  }, [userAnswers])
+    calculateBackendComparison()
+  }, [normalizedUserAnswers])
 
-  const calculateLocalComparison = () => {
-    // Obtener todas las respuestas del localStorage
-    const storedResponses = localStorage.getItem(ALL_RESPONSES_KEY)
-    const allResponses: SurveySubmission[] = storedResponses ? JSON.parse(storedResponses) : []
+  const calculateBackendComparison = async () => {
+    try {
+      // Obtener todas las respuestas del backend
+      const jwtToken = await initSessionToken()
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/quest/all`, {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`
+        }
+      })
 
-    // Filtrar para no comparar con uno mismo
-    const otherResponses = allResponses.filter((r) => JSON.stringify(r) !== JSON.stringify(userAnswers))
+      if (!response.ok) {
+        throw new Error("No se pudieron cargar las respuestas")
+      }
 
-    if (otherResponses.length === 0) {
-      // Si no hay otras respuestas, mostrar datos simulados
+      const allResponses = await response.json()
+
+      // Si hay solo una respuesta (la del usuario actual), es el primero
+      if (allResponses.length <= 1) {
+        setIsFirstResponse(true)
+        setComparison({
+          totalResponses: 1,
+          matchPercentage: 100,
+          matchingFields: [],
+          similarDevs: 0,
+        })
+        setLoading(false)
+        return
+      }
+
+      // Filtrar respuestas de otros usuarios (excluir la actual)
+      const otherResponses = allResponses.filter((r: any) => {
+        const rAnswers = r.answers || r
+        return JSON.stringify(rAnswers) !== JSON.stringify(normalizedUserAnswers)
+      })
+
+      if (otherResponses.length === 0) {
+        setIsFirstResponse(true)
+        setComparison({
+          totalResponses: 1,
+          matchPercentage: 100,
+          matchingFields: [],
+          similarDevs: 0,
+        })
+        setLoading(false)
+        return
+      }
+
+      setIsFirstResponse(false)
+
+      // Calcular similitud con cada respuesta
+      const similarities = otherResponses.map((response: any) => {
+        const otherAnswers = response.answers || response
+        return calculateSimilarity(normalizedUserAnswers, otherAnswers)
+      })
+
+      // Calcular estadísticas por campo
+      const fields = ["language", "os", "editor", "role", "work-mode", "frameworks"]
+      const matchingFields = fields.map((field) => {
+        const userValue = normalizedUserAnswers[field as keyof typeof normalizedUserAnswers]
+        if (!userValue) return { field, label: fieldLabels[field] || field, matches: 0, percentage: 0 }
+
+        const userArr = Array.isArray(userValue) ? userValue : [userValue]
+        const matches = otherResponses.filter((r: any) => {
+          const otherAnswers = r.answers || r
+          const otherValue = otherAnswers[field]
+          if (!otherValue) return false
+          const otherArr = Array.isArray(otherValue) ? otherValue : [otherValue]
+          return userArr.some((v) => otherArr.includes(v))
+        }).length
+
+        return {
+          field,
+          label: fieldLabels[field] || field,
+          matches,
+          percentage: Math.round((matches / otherResponses.length) * 100),
+        }
+      })
+
+      // Contar devs muy similares (>60% de coincidencia)
+      const similarDevs = similarities.filter((s: number) => s >= 60).length
+      const avgSimilarity = similarities.reduce((a: number, b: number) => a + b, 0) / similarities.length
+
+      setComparison({
+        totalResponses: allResponses.length,
+        matchPercentage: Math.round(avgSimilarity),
+        matchingFields,
+        similarDevs,
+      })
+      setLoading(false)
+    } catch (error) {
+      console.error("Error calculating comparison:", error)
       setComparison({
         totalResponses: 1,
         matchPercentage: 100,
@@ -68,45 +154,7 @@ export function SurveyComparisonCard({ token, userAnswers }: SurveyComparisonPro
         similarDevs: 0,
       })
       setLoading(false)
-      return
     }
-
-    // Calcular similitud con cada respuesta
-    const similarities = otherResponses.map((response) => calculateSimilarity(userAnswers, response))
-
-    // Calcular estadísticas por campo
-    const fields = ["language", "os", "editor", "role", "work-mode", "frameworks"]
-    const matchingFields = fields.map((field) => {
-      const userValue = userAnswers[field]
-      if (!userValue) return { field, label: fieldLabels[field] || field, matches: 0, percentage: 0 }
-
-      const userArr = Array.isArray(userValue) ? userValue : [userValue]
-      const matches = otherResponses.filter((r) => {
-        const otherValue = r[field]
-        if (!otherValue) return false
-        const otherArr = Array.isArray(otherValue) ? otherValue : [otherValue]
-        return userArr.some((v) => otherArr.includes(v))
-      }).length
-
-      return {
-        field,
-        label: fieldLabels[field] || field,
-        matches,
-        percentage: Math.round((matches / otherResponses.length) * 100),
-      }
-    })
-
-    // Contar devs muy similares (>60% de coincidencia)
-    const similarDevs = similarities.filter((s) => s >= 60).length
-    const avgSimilarity = similarities.reduce((a, b) => a + b, 0) / similarities.length
-
-    setComparison({
-      totalResponses: allResponses.length,
-      matchPercentage: Math.round(avgSimilarity),
-      matchingFields,
-      similarDevs,
-    })
-    setLoading(false)
   }
 
   const copyToken = async () => {
@@ -138,7 +186,7 @@ export function SurveyComparisonCard({ token, userAnswers }: SurveyComparisonPro
       className="space-y-4"
     >
       {/* Token Card */}
-      <Card className="bg-gradient-to-br from-primary/20 to-accent/20 border-primary/40 overflow-hidden">
+      <Card className="bg-linear-to-br from-primary/20 to-accent/20 border-primary/40 overflow-hidden">
         <CardContent className="p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-full bg-primary/30 flex items-center justify-center">
@@ -159,8 +207,75 @@ export function SurveyComparisonCard({ token, userAnswers }: SurveyComparisonPro
         </CardContent>
       </Card>
 
-      {/* Comparison Stats */}
-      {comparison && comparison.totalResponses > 1 && (
+      {/* If only one response */}
+      {isFirstResponse && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Card className="bg-linear-to-br from-primary/20 via-accent/10 to-primary/20 border-primary/40 overflow-hidden">
+            <CardContent className="p-6 sm:p-8 text-center">
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+                className="inline-block mb-4"
+              >
+                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                  <Zap className="w-8 h-8 text-primary" />
+                </div>
+              </motion.div>
+
+              <h3 className="text-lg sm:text-xl font-bold mb-3 bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
+                ¡Eres el primero en responder!
+              </h3>
+
+              <p className="text-sm sm:text-base text-muted-foreground mb-4">
+                Sé pionero en la comunidad dev de 2025. Comparte esta encuesta con otros desarrolladores para ver comparaciones y descubrir qué tienen en común.
+              </p>
+
+              <div className="grid grid-cols-2 gap-3 mt-6 mb-6">
+                <div className="bg-background/50 rounded-lg p-3 border border-primary/20">
+                  <div className="text-2xl font-bold text-primary">1</div>
+                  <div className="text-xs text-muted-foreground">Respuesta enviada</div>
+                </div>
+                <div className="bg-background/50 rounded-lg p-3 border border-accent/20">
+                  <div className="text-2xl font-bold text-accent">∞</div>
+                  <div className="text-xs text-muted-foreground">Posibilidades</div>
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm text-muted-foreground mb-4">
+                📱 Comparte tu token o la encuesta en tu comunidad favorita:
+              </p>
+
+              <div className="flex gap-2 flex-wrap justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copyToken}
+                  className="text-xs sm:text-sm"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-4 h-4 mr-1" />
+                      ¡Copiado!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 mr-1" />
+                      Copiar Token
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* Comparison Stats - Only show if NOT first response */}
+      {!isFirstResponse && comparison && comparison.totalResponses > 1 && (
         <Card className="bg-card/60 backdrop-blur-md border-primary/30">
           <CardHeader className="pb-2">
             <CardTitle className="text-base sm:text-lg flex items-center gap-2">
@@ -242,13 +357,13 @@ export function SurveyComparisonCard({ token, userAnswers }: SurveyComparisonPro
             {/* Field breakdown */}
             {comparison.matchingFields.length > 0 && (
               <div className="space-y-3">
-                <h4 className="text-sm font-medium text-muted-foreground">Coincidencias por campo</h4>
+                <h4 className="text-sm font-medium">Campos con coincidencias</h4>
                 {comparison.matchingFields.map((field, index) => (
                   <motion.div
                     key={field.field}
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.8 + index * 0.1 }}
+                    transition={{ delay: 1.2 + index * 0.05 }}
                     className="flex items-center gap-3"
                   >
                     <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground">
@@ -264,7 +379,7 @@ export function SurveyComparisonCard({ token, userAnswers }: SurveyComparisonPro
                           initial={{ width: 0 }}
                           animate={{ width: `${field.percentage}%` }}
                           transition={{ duration: 0.8, delay: 1 + index * 0.1 }}
-                          className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                          className="h-full bg-linear-to-r from-primary to-accent rounded-full"
                         />
                       </div>
                     </div>
@@ -274,19 +389,6 @@ export function SurveyComparisonCard({ token, userAnswers }: SurveyComparisonPro
             )}
           </CardContent>
         </Card>
-      )}
-
-      {/* If only one response */}
-      {comparison && comparison.totalResponses <= 1 && (
-        <Card className="bg-card/60 backdrop-blur-md border-primary/30">
-          <CardContent className="p-6 text-center">
-            <Users className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
-            <p className="text-sm text-muted-foreground">
-              Eres el primero en responder. Comparte la encuesta para ver comparaciones con otros devs.
-            </p>
-          </CardContent>
-        </Card>
-      )}
-    </motion.div>
+      )}    </motion.div>
   )
 }
