@@ -19,22 +19,18 @@ interface SurveyQuestionCardProps {
 }
 
 export function SurveyQuestionCard({ question, index, value, onChange }: SurveyQuestionCardProps) {
+  const MAX_INPUT_LENGTH = 40
   const [customValue, setCustomValue] = useState("")
+  const [customError, setCustomError] = useState("")
   const [showCustomInput, setShowCustomInput] = useState(false)
 
   const handleSingleChange = (val: string) => {
     if (val === "__custom__") {
       setShowCustomInput(true)
-      onChange(customValue || "")
     } else {
       setShowCustomInput(false)
       onChange(val)
     }
-  }
-
-  const handleCustomChange = (val: string) => {
-    setCustomValue(val)
-    onChange(val)
   }
 
   const handleMultipleChange = (option: string, checked: boolean) => {
@@ -43,6 +39,17 @@ export function SurveyQuestionCard({ question, index, value, onChange }: SurveyQ
       onChange([...currentValues, option])
     } else {
       onChange(currentValues.filter((v) => v !== option))
+    }
+  }
+
+  const handleAddCustomMultiple = () => {
+    const trimmed = customValue.trim()
+    if (!trimmed || trimmed.length > MAX_INPUT_LENGTH) return
+    const currentValues = Array.isArray(value) ? value : []
+    if (!currentValues.includes(trimmed)) {
+      onChange([...currentValues, trimmed])
+      setCustomValue("")
+      setCustomError("")
     }
   }
 
@@ -112,14 +119,31 @@ export function SurveyQuestionCard({ question, index, value, onChange }: SurveyQ
           )}
 
           {question.type === "single" && showCustomInput && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-3">
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-3 space-y-1">
               <Input
                 placeholder="Escribe tu respuesta..."
                 value={customValue}
-                onChange={(e) => handleCustomChange(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setCustomValue(val)
+                  setCustomError(val.length > MAX_INPUT_LENGTH ? `Máximo ${MAX_INPUT_LENGTH} caracteres` : "")
+                }}
+                onBlur={() => {
+                  if (customValue.trim().length <= MAX_INPUT_LENGTH) {
+                    onChange(customValue.trim())
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && customValue.trim().length <= MAX_INPUT_LENGTH) {
+                    e.preventDefault()
+                    onChange(customValue.trim())
+                  }
+                }}
+                maxLength={MAX_INPUT_LENGTH + 10}
                 className="bg-secondary/40 border-primary/30 focus:border-primary text-sm"
                 autoFocus
               />
+              {customError && <p className="text-xs text-red-500">{customError}</p>}
             </motion.div>
           )}
 
@@ -154,26 +178,29 @@ export function SurveyQuestionCard({ question, index, value, onChange }: SurveyQ
                   animate={{ opacity: 1, y: 0 }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="col-span-1 sm:col-span-2"
+                  className="col-span-1 sm:col-span-2 space-y-1"
                 >
-                  <div className="flex gap-2 items-center">
-                    <Input
-                      placeholder="Añadir opción personalizada..."
-                      value={customValue}
-                      onChange={(e) => setCustomValue(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && customValue.trim()) {
-                          const currentValues = Array.isArray(value) ? value : []
-                          if (!currentValues.includes(customValue.trim())) {
-                            onChange([...currentValues, customValue.trim()])
-                            setCustomValue("")
-                          }
-                        }
-                      }}
-                      className="bg-secondary/40 border-primary/30 focus:border-primary text-sm flex-1"
-                    />
-                  </div>
-                    <span className="text-sm text-slate-600">* Presiona Enter para añadir una opcion personalizada</span>
+                  <Input
+                    placeholder="Añadir opción personalizada..."
+                    value={customValue}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      setCustomValue(val)
+                      setCustomError(val.length > MAX_INPUT_LENGTH ? `Máximo ${MAX_INPUT_LENGTH} caracteres` : "")
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault()
+                        handleAddCustomMultiple()
+                      }
+                    }}
+                    maxLength={MAX_INPUT_LENGTH + 10}
+                    className="bg-secondary/40 border-primary/30 focus:border-primary text-sm flex-1"
+                  />
+                  {customError && <p className="text-xs text-red-500">{customError}</p>}
+                  <p className="text-sm text-slate-600">
+                    * Presiona Enter para añadir una opción personalizada
+                  </p>
                 </motion.div>
               )}
 
@@ -211,8 +238,10 @@ export function SurveyQuestionCard({ question, index, value, onChange }: SurveyQ
                 placeholder="Escribe tu respuesta aquí..."
                 value={value as string}
                 onChange={(e) => onChange(e.target.value)}
+                maxLength={500}
                 className="bg-secondary/40 border-border/50 focus:border-primary min-h-[80px] sm:min-h-[100px] resize-none text-sm"
               />
+              <p className="text-xs text-muted-foreground mt-1">Máximo 500 caracteres</p>
             </motion.div>
           )}
         </CardContent>
@@ -220,3 +249,4 @@ export function SurveyQuestionCard({ question, index, value, onChange }: SurveyQ
     </motion.div>
   )
 }
+                    
