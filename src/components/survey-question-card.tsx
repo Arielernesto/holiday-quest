@@ -147,13 +147,68 @@ export function SurveyQuestionCard({ question, index, value, onChange }: SurveyQ
                   </Label>
                 </motion.div>
               ))}
+
+              {question.allowCustom && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="col-span-1 sm:col-span-2"
+                >
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      placeholder="Añadir opción personalizada..."
+                      value={customValue}
+                      onChange={(e) => setCustomValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && customValue.trim()) {
+                          const currentValues = Array.isArray(value) ? value : []
+                          if (!currentValues.includes(customValue.trim())) {
+                            onChange([...currentValues, customValue.trim()])
+                            setCustomValue("")
+                          }
+                        }
+                      }}
+                      className="bg-secondary/40 border-primary/30 focus:border-primary text-sm flex-1"
+                    />
+                  </div>
+                    <span className="text-sm text-slate-600">* Presiona Enter para añadir una opcion personalizada</span>
+                </motion.div>
+              )}
+
+              {Array.isArray(value) &&
+                value
+                  .filter((v) => !question.options.includes(v))
+                  .map((custom, i) => (
+                    <motion.div
+                      key={`custom-${custom}-${i}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Label
+                        htmlFor={`${question.id}-custom-${i}`}
+                        className="flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg bg-secondary/40 hover:bg-secondary/70 cursor-pointer transition-all border border-dashed border-primary/30 hover:border-primary/50"
+                      >
+                        <Checkbox
+                          id={`${question.id}-custom-${i}`}
+                          checked
+                          onCheckedChange={(checked) => handleMultipleChange(custom, checked as boolean)}
+                        />
+                        <span className="text-xs sm:text-sm italic">{custom}</span>
+                      </Label>
+                    </motion.div>
+                  ))}
             </div>
           )}
 
           {question.type === "text" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
               <Textarea
-                placeholder="Escribe tu respuesta aqui..."
+                placeholder="Escribe tu respuesta aquí..."
                 value={value as string}
                 onChange={(e) => onChange(e.target.value)}
                 className="bg-secondary/40 border-border/50 focus:border-primary min-h-[80px] sm:min-h-[100px] resize-none text-sm"
