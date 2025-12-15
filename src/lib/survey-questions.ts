@@ -314,7 +314,7 @@ export const SURVEY_SECTIONS: SurveySection[] = [
     questions: [
       {
         id: "learning",
-        question: "¿Qué tecnología te gustaría aprender en 2025?",
+        question: "¿Qué tecnología te gustaría aprender en 2026?",
         type: "text",
         required: false,
       },
@@ -337,7 +337,7 @@ export const SURVEY_SECTIONS: SurveySection[] = [
       },
       {
         id: "ai-impact",
-        question: "¿Cómo crees que la IA impactará tu trabajo en 2025?",
+        question: "¿Cómo crees que la IA impactará tu trabajo en 2026?",
         type: "single",
         options: [
           "Seré más productivo",
