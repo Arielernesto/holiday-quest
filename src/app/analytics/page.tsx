@@ -86,7 +86,7 @@ export default function AnalyticsPage() {
         </motion.div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-8">
-          <StatCard title="Participantes" value={data.totalResponses} icon={Users} delay={0} />
+          <StatCard title="Participantes" subtitle="populares" value={data.totalResponses} icon={Users} delay={0} />
           <StatCard title="Lenguajes" value={data.languageStats.length} subtitle="diferentes" icon={Code} delay={0.1} />
           <StatCard
             title="Frameworks"
@@ -132,95 +132,95 @@ export default function AnalyticsPage() {
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+          <TabsContent value="overview" className="space-y-3 sm:space-y-4 md:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
               <ComparisonCard
                 title="Lenguaje Top"
                 current={data.languageStats[0] || { name: "-", percentage: 0 }}
-                icon={<Code className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                icon={<Code className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />}
                 color={data.languageStats[0]?.color}
                 delay={0}
               />
               <ComparisonCard
                 title="SO Preferido"
                 current={data.osStats[0] || { name: "-", percentage: 0 }}
-                icon={<Monitor className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                icon={<Monitor className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />}
                 color={data.osStats[0]?.color}
                 delay={0.1}
               />
               <ComparisonCard
                 title="Editor Top"
                 current={data.editorStats[0] || { name: "-", percentage: 0 }}
-                icon={<Terminal className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                icon={<Terminal className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />}
                 color={data.editorStats[0]?.color}
                 delay={0.2}
               />
               <ComparisonCard
                 title="Framework Top"
                 current={data.frameworkStats[0] || { name: "-", percentage: 0 }}
-                icon={<Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                icon={<Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />}
                 color={data.frameworkStats[0]?.color}
                 delay={0.3}
               />
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Code className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Code className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Distribucion de Lenguajes
                     </CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">Visualizacion estilo GitHub</CardDescription>
+                    <CardDescription className="text-xs sm:text-xs md:text-sm">Visualizacion estilo GitHub</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-3 md:p-4 overflow-x-auto">
                     <LanguageBar data={data.languageStats} />
                   </CardContent>
                 </Card>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Frameworks Populares
                     </CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">Tecnologias mas usadas</CardDescription>
+                    <CardDescription className="text-xs sm:text-xs md:text-sm">Tecnologias mas usadas</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-3 md:p-4 overflow-x-auto">
                     <StackedBarChart data={data.frameworkStats.slice(0, 8)} />
                   </CardContent>
                 </Card>
               </motion.div>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Experiencia
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="flex justify-center">
-                    <DonutChart data={data.experienceStats} size={180} />
+                  <CardContent className="flex justify-center py-2 sm:py-3 md:py-4 overflow-x-auto">
+                    <DonutChart data={data.experienceStats} size={160} />
                   </CardContent>
                 </Card>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Monitor className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Monitor className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Sistemas Operativos
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="flex justify-center">
-                    <PieChart data={data.osStats} size={180} />
+                  <CardContent className="flex justify-center py-2 sm:py-3 md:py-4 overflow-x-auto">
+                    <PieChart data={data.osStats} size={160} />
                   </CardContent>
                 </Card>
               </motion.div>
@@ -231,58 +231,20 @@ export default function AnalyticsPage() {
                 transition={{ delay: 0.6 }}
                 className="sm:col-span-2 lg:col-span-1"
               >
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Modo de Trabajo
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="flex justify-center">
-                    <DonutChart data={data.workModeStats} size={180} />
+                  <CardContent className="flex justify-center py-2 sm:py-3 md:py-4 overflow-x-auto">
+                    <DonutChart data={data.workModeStats} size={160} />
                   </CardContent>
                 </Card>
               </motion.div>
             </div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
-              <Card className="bg-card/60 backdrop-blur-md border-border/40">
-                <CardHeader className="pb-2 sm:pb-4">
-                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                    Impacto de la IA en 2025
-                  </CardTitle>
-                  <CardDescription className="text-xs sm:text-sm">Como creen que afectara su trabajo</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <HorizontalFunnel data={data.aiImpactStats} />
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {topAiImpactSentiments.length > 0 && (
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
-                  <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                      Principales Sentimientos sobre IA
-                    </CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">La opinion mas destacada de la comunidad</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                      {topAiImpactSentiments.map((sentiment, index) => (
-                        <li key={index} className="flex items-start">
-                          <Sparkles className="w-4 h-4 text-primary mr-2 flex-shrink-0" />
-                          <span>{sentiment}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
           </TabsContent>
 
           <TabsContent value="my-profile" className="space-y-4 sm:space-y-6">
@@ -291,65 +253,65 @@ export default function AnalyticsPage() {
 
           {/* Languages Tab */}
           <TabsContent value="languages" className="space-y-4 sm:space-y-6">
-            <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Code className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Code className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Ranking de Lenguajes
                     </CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">Los mas votados por la comunidad</CardDescription>
+                    <CardDescription className="text-xs sm:text-xs md:text-sm">Los mas votados por la comunidad</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-3 md:p-4">
                     <RankingList data={data.languageStats} showAll />
                   </CardContent>
                 </Card>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Code className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Code className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Distribucion Visual
                     </CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">Proporcion de cada lenguaje</CardDescription>
+                    <CardDescription className="text-xs sm:text-xs md:text-sm">Proporcion de cada lenguaje</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex justify-center py-2 sm:py-4">
-                    <RadarChart data={data.languageStats} size={240} />
+                  <CardContent className="flex justify-center py-2 sm:py-3 md:py-4 overflow-x-auto">
+                    <RadarChart data={data.languageStats} size={180} />
                   </CardContent>
                 </Card>
               </motion.div>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Code className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Code className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Popularidad por Lenguaje
                     </CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">Tamano proporcional al uso</CardDescription>
+                    <CardDescription className="text-xs sm:text-xs md:text-sm">Tamano proporcional al uso</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <BubbleChart data={data.languageStats} width={380} height={220} />
+                  <CardContent className="w-full overflow-x-auto">
+                    <BubbleChart data={data.languageStats} width={300} height={200} />
                   </CardContent>
                 </Card>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Code className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Code className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Top 4 Lenguajes
                     </CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">Anillos de progreso comparativos</CardDescription>
+                    <CardDescription className="text-xs sm:text-xs md:text-sm">Anillos de progreso comparativos</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex justify-center">
-                    <ProgressRing data={data.languageStats} size={200} />
+                  <CardContent className="flex justify-center overflow-x-auto">
+                    <ProgressRing data={data.languageStats} size={160} />
                   </CardContent>
                 </Card>
               </motion.div>
@@ -357,61 +319,61 @@ export default function AnalyticsPage() {
           </TabsContent>
 
           {/* Tools Tab */}
-          <TabsContent value="tools" className="space-y-4 sm:space-y-6">
-            <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+          <TabsContent value="tools" className="space-y-3 sm:space-y-4 md:space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Terminal className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Terminal className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Editores de Codigo
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-3 md:p-4 overflow-x-auto">
                     <BarChart data={data.editorStats} />
                   </CardContent>
                 </Card>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Terminal className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Terminal className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Terminales
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-3 md:p-4 overflow-x-auto">
                     <BarChart data={data.terminalStats} />
                   </CardContent>
                 </Card>
               </motion.div>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Database className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Database className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Bases de Datos
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-3 md:p-4 overflow-x-auto">
                     <RankingList data={data.databaseStats} />
                   </CardContent>
                 </Card>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Brain className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Herramientas IA
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-3 md:p-4 overflow-x-auto">
                     <WordCloud data={data.aiToolsStats} />
                   </CardContent>
                 </Card>
@@ -421,13 +383,13 @@ export default function AnalyticsPage() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
               <Card className="bg-card/60 backdrop-blur-md border-border/40">
                 <CardHeader className="pb-2 sm:pb-4">
-                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                    <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                    <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                     Frameworks y Librerias
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <BubbleChart data={data.frameworkStats} width={500} height={250} />
+                <CardContent className="w-full overflow-x-auto">
+                  <BubbleChart data={data.frameworkStats} width={300} height={200} />
                 </CardContent>
               </Card>
             </motion.div>
@@ -435,11 +397,11 @@ export default function AnalyticsPage() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
               <Card className="bg-card/60 backdrop-blur-md border-border/40">
                 <CardHeader className="pb-2 sm:pb-4">
-                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                    <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                    <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                     Herramientas de Testing
                   </CardTitle>
-                  <CardDescription className="text-xs sm:text-sm">Frameworks y librerias de testing</CardDescription>
+                  <CardDescription className="text-xs sm:text-xs md:text-sm">Frameworks y librerias de testing</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <HorizontalFunnel data={data.testingStats} />
@@ -449,76 +411,76 @@ export default function AnalyticsPage() {
           </TabsContent>
 
           {/* Profile Tab */}
-          <TabsContent value="profile" className="space-y-4 sm:space-y-6">
-            <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+          <TabsContent value="profile" className="space-y-3 sm:space-y-4 md:space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Roles
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-3 md:p-4 overflow-x-auto">
                     <RankingList data={data.roleStats} showAll />
                   </CardContent>
                 </Card>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Experiencia
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-2 sm:p-3 md:p-4 overflow-x-auto">
                     <BarChart data={data.experienceStats} />
                   </CardContent>
                 </Card>
               </motion.div>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Modalidad de Trabajo
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="flex justify-center">
-                    <PieChart data={data.workModeStats} size={180} />
+                  <CardContent className="flex justify-center py-2 sm:py-3 md:py-4 overflow-x-auto">
+                    <PieChart data={data.workModeStats} size={160} />
                   </CardContent>
                 </Card>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Monitor className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Monitor className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Sistemas Operativos
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="flex justify-center">
-                    <DonutChart data={data.osStats} size={180} />
+                  <CardContent className="flex justify-center py-2 sm:py-3 md:py-4 overflow-x-auto">
+                    <DonutChart data={data.osStats} size={160} />
                   </CardContent>
                 </Card>
               </motion.div>
 
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                <Card className="bg-card/60 backdrop-blur-md border-border/40">
+                <Card className="bg-card/60 backdrop-blur-md border-border/40 h-full">
                   <CardHeader className="pb-2 sm:pb-4">
-                    <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                      <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-xs sm:text-sm md:text-base">
+                      <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary" />
                       Tamano de Empresa
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="flex justify-center">
-                    <DonutChart data={data.companySizeStats} size={180} />
+                  <CardContent className="flex justify-center py-2 sm:py-3 md:py-4 overflow-x-auto">
+                    <DonutChart data={data.companySizeStats} size={160} />
                   </CardContent>
                 </Card>
               </motion.div>
